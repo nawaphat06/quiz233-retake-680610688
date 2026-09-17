@@ -16,11 +16,43 @@ const router = Router();
 
 // POST /api/vXXX/auth/login
 router.post("/login", (req: Request, res: Response) => {
-  try { 
+  try {
+    // 1. get username and password from body
+    const { username, password } = req.body;
+
+    // 2. check if user exists (search with username & password in DB)
+    const user = users
+      .find((u) => u.username === username && u.password === password);
+
+    //1.2 
+    // if user not found
+    if(!user) {
+      return res.status(401).json({
+        success: false,
+        message : "Username or password is incorrect"
+      })
+    }
+
+    // 3. create JWT token (with user info object as payload) using JWT_SECRET_KEY
+    //    (optional: save the token as part of User data)
+    const jwt_secret = process.env.JWT_SECRET || "this_is_my_secret";
+    const token = jwt.sign(
+      {
+        username: user.username,
+        userId: user.userId,
+      }, 
+      jwt_secret,
+      {
+      expiresIn: "10m",
+    });
+    
+    // 1.1
+    // 4. send HTTP response with JWT token
     return res.status(200).json({
       success: true,
       message: "Login successful",
-    });
+      token: token
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
