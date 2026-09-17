@@ -147,7 +147,7 @@ router.post("/:userId",async (req: Request, res: Response) => {
 
       return res.status(201).json({
         success: true,
-        message: "Item added successfully",
+        message: "New Item has been added successfully",
         data: newItem,
       });
     } catch (err) {
